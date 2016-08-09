@@ -1,0 +1,25 @@
+{
+  "name": "static",
+  "authors": [
+    "alexscrat <a.l.e.x.s.c.r.a.t.666@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.7",
+    "jquery": "~3.1.0",
+    "underscore": "~1.8.3",
+    "handlebars": "~4.0.5",
+    "moment": "momentjs#~2.14.1"
+  }
+}

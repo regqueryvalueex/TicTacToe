@@ -1,0 +1,22 @@
+[data-content='row']{
+    margin: 0;
+}
+
+[data-content='cell']{
+    margin: 5px;
+    background: #bebeb4;
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    font-size: 42px;
+    line-height: normal;
+    padding-left: 11px;
+    cursor: pointer;
+}
+
+ul.errorlist {
+    list-style: none;
+    padding-left: 0px;
+    color: #b35757;
+    font-size: 14px;
+}

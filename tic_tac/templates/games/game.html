@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+    <div class="row" id="field" data-size="{{ game.size }}" data-pk="{{ game.pk }}" data-finished="{{ game.finished }} data-min_length="{{ game.min_length }} data-allow_horizontal="{{ game.allow_horizontal }} data-allow_vertical="{{ game.allow_vertical }} data-allow_diagonal="{{ game.allow_diagonal }}">
+
+    </div>
+{% endblock content %}
+
+{% block extra_js %}
+    <script src="{% static 'js/game.js' %}"></script>
+{% endblock extra_js %}

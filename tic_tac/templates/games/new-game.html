@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+    <div class="row">
+        <form method="POST">
+            {% csrf_token %}
+            <table class="table">
+                {{ form.as_table }}
+            </table>
+            <button type="submit">New Game</button>
+        </form>
+    </div>
+{% endblock content %}
+
+{% block extra_js %}
+{% endblock extra_js %}
