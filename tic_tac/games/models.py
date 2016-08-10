@@ -20,6 +20,7 @@ class Game(models.Model):
 
 
 class Move(models.Model):
+    game = models.ForeignKey(Game)
     x = models.IntegerField()
     y = models.IntegerField()
     created = models.DateTimeField(auto_now_add=True)
