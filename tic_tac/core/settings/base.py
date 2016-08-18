@@ -66,18 +66,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-SOCIALACCOUNT_PROVIDERS = {
-     'google':
-         {
-             'SCOPE': ['profile', 'email'],
-         }
-     }
-
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
-)
-
 SOCIALACCOUNT_EMAIL_VERIFICATION = False
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'email'
 ACCOUNT_ADAPTER = "accounts.adapters.AccountAdapter"

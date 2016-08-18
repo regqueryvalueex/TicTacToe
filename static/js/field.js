@@ -9,16 +9,20 @@
             this.field[i] = new Array(this.size);
         }
 
-        this.getCell = function(x, y){
+        this.getCellValue = function(x, y){
             return this.field[x][y];
         };
 
-        this.setCell = function (x, y, val) {
-            if (this.getCell(x, y)){
-                return false;
-            }
+        this.getCell = function(x, y){
+            return $('[data-x=' + x + '][data-y=' + y + ']');
+        };
+
+        this.setCellValue = function (x, y, val) {
+            // if (this.getCellValue(x, y)){
+            //     return false;
+            // }
             this.field[x][y] = val;
-            $('[data-x=' + x + '][data-y=' + y + ']').text(val);
+            this.getCell(x, y).text(val);
             return true;
         };
 
@@ -32,6 +36,12 @@
                 html += "</div>";
             }
             return html;
+        };
+
+        this.highlightLine = function(line, color){
+            line.forEach(function(cell){
+                this.getCell(cell[0], cell[1])[0].style.backgroundColor = color;
+            }, this);
         }
     }
 

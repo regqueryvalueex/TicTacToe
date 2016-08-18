@@ -7,6 +7,7 @@ from django.db import models
 class Game(models.Model):
 
     finished = models.BooleanField(default=False)
+    aborted = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     size = models.IntegerField(verbose_name='Field size', default=3)
     min_length = models.IntegerField(verbose_name='Line length', default=3)

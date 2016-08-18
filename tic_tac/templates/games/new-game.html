@@ -8,9 +8,36 @@
             <table class="table">
                 {{ form.as_table }}
             </table>
-            <button type="submit">New Game</button>
+            <button type="submit" class="btn btn-success">New Game</button>
         </form>
     </div>
+    {% if open_games %}
+        <div class="row">
+            <hr>
+            <h4>Or connect to existing game</h4>
+            <table class="table text-center">
+                <tr>
+                    <th>id</th>
+                    <th>Size</th>
+                    <th>Min length</th>
+                    <th>Allow horizontal</th>
+                    <th>Allow vertical</th>
+                    <th>Allow diagonal</th>
+                </tr>
+                {% for game in open_games %}
+                    <tr>
+                        <td><a href="{% url "games:game" game.id %}">{{ game.id }}</a></td>
+                        <td>{{ game.size }}</td>
+                        <td>{{ game.min_length }}</td>
+                        <td>{{ game.allow_horizontal|yesno:"+,-" }}</td>
+                        <td>{{ game.allow_vertical|yesno:"+,-" }}</td>
+                        <td>{{ game.allow_diagonal|yesno:"+,-" }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% endif %}
+
 {% endblock content %}
 
 {% block extra_js %}

@@ -37,6 +37,16 @@ def ws_connect(message):
     message.channel_session['room'] = room
 
     game_info = cache.get("game-%s" % message.channel_session['room'], {})
+
+    if not 'game-id' in game_info:
+        game = models.Game.objects.get(pk=room.split('-')[-1])
+        if game.finished or game.aborted:
+            return
+        game_info['game-id'] = game.id
+        game_info['game-field'] = TicTacFieldSerializer.serialize(TicTacField.from_game(game))
+
+    open_games = cache.get('open_games', set())
+
     game_info.setdefault('players-queue', [])
     game_info.setdefault('players', {})
     if len(game_info['players-queue']) < 2:
@@ -54,15 +64,22 @@ def ws_connect(message):
                                   'Player-%s join the game' % number,
                                   type='join')
                  )
+        open_games.add(game_info['game-id'])
+    else:
+        try:
+            open_games.remove(game_info['game-id'])
+        except KeyError:
+            pass
+        message.reply_channel. \
+            send(populate_message('warning',
+                                  'You connected as a spectator',
+                                  type='spectator-connected')
+                 )
 
-    if not 'game-id' in game_info:
-        game = models.Game.objects.get(pk=room.split('-')[-1])
-        game_info['game-id'] = game.id
-        game_info['game-field'] = TicTacFieldSerializer.serialize(TicTacField.from_game(game))
+
+    open_games = cache.set('open_games', open_games)
 
     cache.set("game-%s" % message.channel_session['room'], game_info, 3600)
-
-    import pprint; pprint.pprint(game_info)
 
 
 # Connected to websocket.receive
@@ -72,6 +89,11 @@ def ws_connect(message):
 def ws_message(message):
 
     game_info = cache.get("game-%s" % message.channel_session['room'], {})
+
+    game_id = game_info['game-id']
+    game = models.Game.objects.get(id=game_id)
+    if game.finished or game.aborted:
+        return
 
     if len(game_info['players-queue']) < 2:
         Group("game-%s" % message.channel_session['room']). \
@@ -86,8 +108,6 @@ def ws_message(message):
     field = TicTacFieldSerializer.restore(game_info['game-field'])
     players_queue = game_info['players-queue']
     players = game_info['players']
-    game_id = game_info['game-id']
-    game = models.Game.objects.get(id=game_id)
 
     x, y = int(msg['details']['x']), int(msg['details']['y'])
     if not field.get_cell(x, y):
@@ -107,13 +127,16 @@ def ws_message(message):
                                   player=players[players_queue[0]]['name'])
                  )
 
-        if field.check_lines(x, y):
+        win_line = field.check_lines(x, y)
+        if win_line:
             game.finished = True
+            game.save()
             Group("game-%s" % message.channel_session['room']).\
                 send(populate_message('game-action',
                                       '%s win the game' % players[players_queue[0]]['name'],
                                       type='game-finish',
-                                      winner=players[players_queue[0]]['name'])
+                                      winner=players[players_queue[0]]['name'],
+                                      win_line=win_line,)
                      )
 
         players_queue.append(players_queue.pop(0))
@@ -136,5 +159,18 @@ def ws_disconnect(message):
         players_queue.remove(message.reply_channel.name)
         Group("game-%s" % message.channel_session['room']). \
             send(populate_message('game-action', '%s disconnected' % disconnected['name'], type='disconnect'))
+
+        game_id = game_info['game-id']
+
+        open_games = cache.get('open_games', set())
+        try:
+            open_games.remove(game_info['game-id'])
+            open_games = cache.set('open_games', open_games)
+        except KeyError:
+            pass
+
+        game = models.Game.objects.get(id=game_id)
+        game.aborted = True
+        game.save()
 
     cache.set("game-%s" % message.channel_session['room'], game_info, 3600)

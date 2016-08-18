@@ -22,14 +22,14 @@ class TicTacField(object):
 
     def check_lines(self, x, y):
         for line in self.line_generator(x, y):
-            if len(set(line)) == 1:
-                return True
-        return False
+            if len(set(map(lambda x: x[2], line))) == 1:
+                return line
+        return None
 
     def get_line(self, x, y, walker):
         line = []
         for i in range(self._min_length):
-            line.append(self.get_cell(x, y))
+            line.append((x, y, self.get_cell(x, y)))
             x, y = walker(x, y)
         return line
 
@@ -59,7 +59,6 @@ class TicTacField(object):
             y_start = y + min(x - x_left, y_top - y)
             x_start = x - min(x - x_left, y_top - y)
             while y_start - length >= 0 and x_start + length < self._size and x_start <= x and y_start >= y:
-                print('----------')
                 yield self.get_line(x_start, y_start, lambda x, y: (x + 1, y - 1))
                 x_start += 1
                 y_start -= 1
