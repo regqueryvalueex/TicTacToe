@@ -1,1 +1,1 @@
-Tic Tac Toe example powered by djnago channels
+Tic Tac Toe example powered by django channels

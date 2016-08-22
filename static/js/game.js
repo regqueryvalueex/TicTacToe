@@ -22,11 +22,18 @@
                         field.highlightLine(data.details.win_line, "#18c155");
                         logBlock.prepend('<p>Game over!</p>');
                         break;
+                    case 'game-aborted':
+                        logBlock.prepend('<p>Player leave room!</p>');
+                        logBlock.prepend('<p>Game over!</p>');
+                        break;
                 }
                 break;
             case 'warning':
                 switch (data.details.type) {
                     case 'spectator-connected':
+                        data.details.history.forEach(function(item, ind, arr){
+                            field.setCellValue(item.x, item.y, ['X', 'O'][ind%2]);
+                        });
                         alert(data.details.message);
                         break;
                 }

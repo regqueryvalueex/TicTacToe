@@ -5,6 +5,8 @@ from django.core.cache import cache
 from channels import Group
 from channels.sessions import channel_session, enforce_ordering
 from channels.auth import http_session_user, channel_session_user, channel_session_user_from_http
+from django.utils import timezone
+
 from .tic_tac_field import TicTacField, TicTacFieldSerializer
 from . import models
 
@@ -38,10 +40,11 @@ def ws_connect(message):
 
     game_info = cache.get("game-%s" % message.channel_session['room'], {})
 
+    game = models.Game.objects.get(pk=room.split('-')[-1])
+    if game.finished or game.aborted:
+        return
+
     if not 'game-id' in game_info:
-        game = models.Game.objects.get(pk=room.split('-')[-1])
-        if game.finished or game.aborted:
-            return
         game_info['game-id'] = game.id
         game_info['game-field'] = TicTacFieldSerializer.serialize(TicTacField.from_game(game))
 
@@ -65,19 +68,27 @@ def ws_connect(message):
                                   type='join')
                  )
         open_games.add(game_info['game-id'])
+        if len(game_info['players-queue']) == 2:
+            try:
+                open_games.remove(game_info['game-id'])
+            except KeyError:
+                pass
     else:
-        try:
-            open_games.remove(game_info['game-id'])
-        except KeyError:
-            pass
         message.reply_channel. \
             send(populate_message('warning',
                                   'You connected as a spectator',
-                                  type='spectator-connected')
+                                  type='spectator-connected',
+                                  history=list(
+                                      game.move_set.values(
+                                          'id',
+                                          'x',
+                                          'y',
+                                      )),
+                                  )
                  )
 
 
-    open_games = cache.set('open_games', open_games)
+    cache.set('open_games', open_games)
 
     cache.set("game-%s" % message.channel_session['room'], game_info, 3600)
 
@@ -130,6 +141,8 @@ def ws_message(message):
         win_line = field.check_lines(x, y)
         if win_line:
             game.finished = True
+            game.finished_time = timezone.now()
+            game.finish_line = win_line
             game.save()
             Group("game-%s" % message.channel_session['room']).\
                 send(populate_message('game-action',
@@ -172,5 +185,12 @@ def ws_disconnect(message):
         game = models.Game.objects.get(id=game_id)
         game.aborted = True
         game.save()
+        Group("game-%s" % message.channel_session['room']). \
+            send(populate_message('game-action',
+                                  '%s win the game' % players[players_queue[0]]['name'],
+                                  type='game-aborted',
+                                  winner=players[players_queue[0]]['name']
+                                  )
+                 )
 
     cache.set("game-%s" % message.channel_session['room'], game_info, 3600)

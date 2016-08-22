@@ -1,6 +1,8 @@
+import datetime
 from django.urls import reverse
 from django.core.cache import cache
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views import generic
 from . import models
 from . import forms
@@ -24,4 +26,12 @@ class NewGameView(generic.CreateView):
         context = super(NewGameView, self).get_context_data(**kwargs)
         open_games_ids = cache.get('open_games', set())
         context['open_games'] = models.Game.objects.filter(id__in=open_games_ids)
+        context['last_games'] = models.Game.objects.filter(finished=True).order_by('-finished_time')[:10]
+        context['active_games'] = models.Game.objects.filter(
+            finished=False,
+            aborted=False,
+            created__gte=timezone.now() - datetime.timedelta(minutes=20),
+        ).exclude(
+            id__in=open_games_ids
+        )
         return context

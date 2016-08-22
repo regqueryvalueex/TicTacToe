@@ -11,5 +11,5 @@ urlpatterns = [
 # rest api
 
 urlpatterns += [
-    url(r'^api/v0/blog/', include('api.v0.common.urls', namespace='api-blog')),
+    url(r'^api/v0/games/', include('api.v0.games.urls', namespace='api-games')),
 ]
