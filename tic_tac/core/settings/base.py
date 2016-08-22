@@ -99,19 +99,22 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'light_it_db.db',
-        # 'USER': 'light_it_usr',
-        # 'PASSWORD': 'kdyr;s74,bdr',
-        # 'HOST': 'localhost',
-        # 'PORT': 5432
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'tic_tac_db',
+        'USER': 'tic_tac_usr',
+        'PASSWORD': 'kd74jfns0',
+        'HOST': 'localhost',
+        'PORT': 5432
     }
 }
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "asgiref.inmemory.ChannelLayer",
-        "ROUTING": "tic_tac.core.routing.channel_routing",
+        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+        "ROUTING": "core.routing.channel_routing",
     },
 }
 

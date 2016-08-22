@@ -1,25 +1,25 @@
-upstream django-light_it {
+upstream django-tic_tac {
     #server 127.0.0.1:8002;
-    server unix:///path/to/light_it-root/uwsgi.sock; # for a file socket
+    server unix:///var/www/TicTacToe/uwsgi.sock; # for a file socket
 }
 
 server {
         listen 80;
-        server_name light_it.dev.4-com.pro;
+        server_name 82.196.14.228;
         client_max_body_size 0;
         charset utf-8;
 
         location /static {
-            alias /path/to/light_it-root/static_root/;
+            alias /var/www/TicTacToe/static_root/;
             add_header Access-Control-Allow-Origin *;
-    }
+        }
 
         location /media {
-            alias /path/to/light_it-root/media_root/;
+            alias /var/www/TicTacToe/media_root/;
         }
 
         location / {
-          uwsgi_pass  django;
+          uwsgi_pass django-tic_tac;
           include uwsgi_params;
         }
 }

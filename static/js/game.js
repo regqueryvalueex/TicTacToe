@@ -6,7 +6,7 @@
 
     fieldBlock.html(field.render());
 
-    socket = new WebSocket("ws://" + window.location.host + window.location.pathname);
+    socket = new WebSocket("ws://" + window.location.hostname + ':8000' + window.location.pathname);
     socket.onmessage = function (e) {
         console.log(e.data);
         var data = JSON.parse(e.data);

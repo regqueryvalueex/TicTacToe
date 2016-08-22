@@ -1,8 +1,8 @@
-# You should symlink this file to light_it root `sudo ln -s path-to-this-file`
+# You should symlink this file to project root `sudo ln -s path-to-this-file`
 .PHONY: reload test syncdb migrate
 
-ROOT_DIR = `pwd`/..
-MANAGE=`pwd`/light_it/manage.py
+ROOT_DIR = `pwd`
+MANAGE=`pwd`/tic_tac/manage.py
 SETTINGS='core.settings.development'
 
 update:
@@ -11,11 +11,11 @@ update:
 	@make req
 	python $(MANAGE) collectstatic --noinput
 	python $(MANAGE) migrate
-	touch reload_light_it
+	touch reload_project
 
 reload:
 	@make collectstatic
-	touch reload_light_it
+	touch reload_project
 
 run:
 	DJANGO_SETTINGS_MODULE=$(SETTINGS) python $(MANAGE) runserver 0.0.0.0:8880
